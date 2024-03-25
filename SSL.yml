@@ -1,0 +1,34 @@
+---
+- name: Build CA with SSL
+  hosts: control
+  become: true
+
+  tasks:
+    - name: Install OpenSSl
+      apt:
+        name: openssl
+        state: present
+
+    - name: Generate SSL private key
+      openssl_privatekey:
+        path: /etc/ssl/private/ca.key
+        size: 2048
+
+    - name: Generate SSL Cert. Signing Request
+      openssl_csr:
+        path: /etc/ssl/private/ca.csr
+        privatekey_path: /etc/ssl/private/ca.key
+        common_name: "enzo"
+        country_name: "PH"
+        state_or_province_name: "MM"
+        organization_name: "TIP"
+        email_address: "qedbpadual@tip.edu.ph"
+
+    - name: Self-sign the cert
+      openssl_certificate:
+        path: /etc/ssl/certs/ca.crt
+        privatekey_path: /etc/ssl/private/ca.key
+        csr_path: /etc/ssl/private/ca.csr
+        provider: selfsigned
+
+
